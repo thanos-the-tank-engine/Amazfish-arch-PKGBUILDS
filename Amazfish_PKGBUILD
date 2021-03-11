@@ -1,0 +1,40 @@
+# Maintainer: Bernhard Landauer <bernhard@manjaro.org>
+
+_pkgname=amazfish
+_repo=harbour-$_pkgname
+pkgname=$_pkgname-git
+pkgver=1.9.8.r5.g16b9ec7
+pkgrel=1
+pkgdesc='Companion application for the Huami Amazfit Bip, Cor, MiBand2/3 and GTS'
+arch=('x86_64' 'aarch64')
+license=(GPL3)
+url="https://github.com/piggz/$_repo"
+makedepends=('git')
+depends=('kcontacts' 'dbus' 'kdb' 'kirigami2' 'mlite' 'mpris-qt5' 'qt5-connectivity' 'qt5-location' 'qt5-quickcontrols2')
+source=("git+$url.git"
+    "git+https://github.com/piggz/libwatchfish.git")
+md5sums=('SKIP'
+         'SKIP')
+
+pkgver() {
+  cd $_repo
+  git describe --long --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  cd $_repo
+  git submodule init
+  git config submodule.libwatchfish.git.url $srcdir/libwatchfish
+  git submodule update
+}
+
+build() {
+  cd $_repo
+  qmake-qt5 FLAVOR=kirigami PREFIX=/usr
+  make
+}
+ 
+package() {
+  cd $_repo
+  make INSTALL_ROOT="$pkgdir" install
+}
